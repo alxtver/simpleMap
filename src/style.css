@@ -103,7 +103,7 @@ button:focus-visible {
   position: fixed;
   top: 10px;
   right: 10px;
-  width: 200px;
+  width: 220px;
   height: 100px;
   background: #4f4f4f99;
   border-radius: 5px;
@@ -115,4 +115,9 @@ button:focus-visible {
   background: #8080801c;
   border-radius: 5px;
   border-color: #ff000024;
+  box-sizing: border-box;
+  width: 100%;
+}
+.custom-mouse-position {
+  font-weight: normal;
 }

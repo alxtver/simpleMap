@@ -4,21 +4,22 @@ import OSM from 'ol/source/OSM.js';
 import TileLayer from 'ol/layer/Tile.js';
 import View from 'ol/View.js';
 import MousePosition from 'ol/control/MousePosition';
-import {createStringXY} from "ol/coordinate";
 import {defaults as defaultControls} from 'ol/control.js';
 import Graticule from 'ol/layer/Graticule';
 import Stroke from 'ol/style/Stroke';
+import {format} from 'ol/coordinate';
 
 const defaultUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 const urlFromLocalStorage = localStorage.getItem('serverurl');
 const urlInput = document.querySelector('.server-url') as HTMLInputElement
 urlInput.value = urlFromLocalStorage ? urlFromLocalStorage : ''
 
-const url = urlInput.value === '' ? defaultUrl : `${urlInput.value}?&z={z}&x={x}&y={y}`;
+const url = urlInput.value === '' ? defaultUrl : `${urlInput.value}?&x={x}&y={y}&z={z}`;
 
+const template = 'Ш: <strong style="color: darkred;">{y}</strong> Д: <strong style="color: darkred;">{x}</strong>';
 
 const mousePositionControl = new MousePosition({
-    coordinateFormat: createStringXY(4),
+    coordinateFormat: (coordinate: any): string => format(coordinate, template, 4),
     projection: 'EPSG:4326',
     className: 'custom-mouse-position',
     target: document.getElementById('mouse-position') as HTMLElement,
@@ -32,7 +33,6 @@ const tileLayer = new TileLayer({
 tileLayer.set('id', 'osmId');
 
 const graticule = new Graticule({
-    // the style to use for the lines, optional.
     strokeStyle: new Stroke({
         color: 'rgba(84,41,3,0.5)',
         width: 1,
@@ -59,13 +59,16 @@ view.on('change:center', () => {
     }
 })
 
-urlInput.addEventListener('input', (e: Event): void => {
+function listener(e: Event): void {
     const value = (e.target as HTMLInputElement).value;
     localStorage.setItem('serverurl', value);
 
     if (value) {
-        (tileLayer.getSource() as OSM).setUrl(value);
+        (tileLayer.getSource() as OSM).setUrl(`${value}?&x={x}&y={y}&z={z}`);
     } else {
         (tileLayer.getSource() as OSM).setUrl(defaultUrl);
     }
-})
+}
+
+urlInput.addEventListener('input', listener)
+urlInput.addEventListener('blur', listener)
